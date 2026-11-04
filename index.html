@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -26,41 +26,13 @@
 
     <canvas id="canvasJuego" width="800" height="600"></canvas>
 
+    <!-- CONEXIÓN CON TUS MÓDULOS EXTERNOS -->
+    <script src="variables.js"></script>
+    <script src="logica.js"></script>
+
+    <!-- CONTROLADOR DEL CANVAS -->
     <script>
-        const canvas = document.getElementById("canvasJuego");
-        const ctx = canvas.getContext("2d");
-
-        // ESTADOS: 'MENU', 'JUEGO', 'VICTORIA', 'DERROTA'
-        let estadoActual = 'MENU';
-
-        // --- VARIABLES PVE ---
-        let vidaJugador = 150;
-        let vidaRival = 500;
-        let rondasGanadas = 0;
-        let ronda = 0;
-
-        let eleccionJugador = '';
-        let eleccionRival = '';
-        let indiceUltimo = '';
-        let registroResultado = '¡Prepárate para combatir!';
-        const opciones = ['Piedra', 'Papel', 'Tijera'];
-
-        // Definición de Botones de Control
-        const botonInicio = { x: 300, y: 380, ancho: 200, alto: 50 };
-        const botonReiniciar = { x: 300, y: 420, ancho: 200, alto: 50 };
-        
-        const botonesOpciones = {
-            'Piedra': { x: 150, y: 460, ancho: 120, alto: 60 },
-            'Papel':  { x: 340, y: 460, ancho: 120, alto: 60 },
-            'Tijera': { x: 530, y: 460, ancho: 120, alto: 60 }
-        };
-
-        function verificarClicRec(x, y, boton) {
-            return x >= boton.x && x <= boton.x + boton.ancho &&
-                   y >= boton.y && y <= boton.y + boton.alto;
-        }
-
-        // --- CONTROL DE CLICS ---
+        // Escuchador de clics en el Canvas
         canvas.addEventListener("mousedown", (evento) => {
             const rect = canvas.getBoundingClientRect();
             const clicX = evento.clientX - rect.left;
@@ -73,11 +45,12 @@
                 }
             } 
             else if (estadoActual === 'JUEGO') {
-                const indiceRival = Math.floor(Math.random() * 4);
-                
                 for (let opcion of opciones) {
                     if (verificarClicRec(clicX, clicY, botonesOpciones[opcion])) {
-                        ejecutarTurnoPvE(opcion);
+                        if (vidaRival > 0 && vidaJugador > 0) {
+                            ronda++;
+                            ejecutarTurnoPvE(opcion);
+                        }
                         break;
                     }
                 }
@@ -89,104 +62,7 @@
             }
         });
 
-        function Maxvalue(array) {
-            const counts = {};
-            let maxCount = 0;
-            let mostFrequent = null;
-
-            for (const item of array) {
-                counts[item] = (counts[item] || 0) + 1;
-                if (counts[item] > maxCount) {
-                    maxCount = counts[item];
-                    mostFrequent = item;
-                }
-            }
-
-            return mostFrequent;
-        }
-        const HistorialJugador = [];
-
-
-        function ejecutarTurnoPvE(eleccionUsuario) {
-            eleccionJugador = eleccionUsuario;
-            HistorialJugador.push(eleccionJugador);
-
-            function indiceBrorracho() {
-                const indice = Math.floor(Math.random() * opciones.length);
-                return opciones[indice];
-            }
-
-            function indiceIdiota() {
-                const azar = Math.random() * 100;
-                if (azar < 60) return 'Piedra';
-                else if (azar < 80) return 'Papel';
-                else return 'Tijera';
-            }
-
-            function indiceElectrico() {
-                const azar = Math.random() * 100;
-                let NewsOptions = opciones.filter((v) => v !== opciones[indiceUltimo]);
-                if (azar < 45) return NewsOptions[0];
-                else if (azar < 90) return NewsOptions[1];
-                else return opciones[indiceUltimo];
-            }
-
-            function indiceCasador() {
-                const tendenciaJugador = Maxvalue(HistorialJugador);
-                if (tendenciaJugador === 'Piedra') return 'Papel';
-                else if (tendenciaJugador === 'Papel') return 'Tijera';
-                else return 'Piedra';
-            }
-
-            if (indiceRival < 1) {
-                eleccionRival = indiceBrorracho();
-            } else if (indiceRival < 2) {
-                eleccionRival = indiceIdiota();
-            } else if (indiceRival < 3) {
-                eleccionRival = indiceElectrico();
-            } else {
-                eleccionRival = indiceCasador();
-            }
-
-            indiceUltimo = opciones.indexOf(eleccionRival);
-
-
-
-            if (eleccionJugador === eleccionRival) {
-                registroResultado = "¡Choque de fuerzas! Empate";
-            } 
-            else if (
-                (eleccionJugador === 'Piedra' && eleccionRival === 'Tijera') ||
-                (eleccionJugador === 'Papel' && eleccionRival === 'Piedra') ||
-                (eleccionJugador === 'Tijera' && eleccionRival === 'Papel')
-            ) {
-                vidaRival--;
-                rondasGanadas++;
-                registroResultado = "¡Golpeaste al rival!";
-            } 
-            else {
-                vidaJugador--;
-                registroResultado = "¡El rival te ha dañado!";
-            }
-
-            // Verificar Estados de Fin de Partida
-            if (vidaRival <= 0) {
-                estadoActual = 'VICTORIA';
-            } else if (vidaJugador <= 0) {
-                estadoActual = 'DERROTA';
-            }
-        }
-
-        function iniciarNuevaPartida() {
-            vidaJugador = 3;
-            vidaRival = 3;
-            rondasGanadas = 0;
-            eleccionJugador = '';
-            eleccionRival = '';
-            registroResultado = '¡Elige tu ataque!';
-        }
-
-        // --- SISTEMA DE RENDERIZADO ---
+        // Tu función dibujar completa y exacta
         function dibujar() {
             ctx.fillStyle = "#0d0d11";
             ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -202,7 +78,6 @@
                 ctx.fillStyle = "#666";
                 ctx.fillText("Derrota al sistema para sobrevivir.", 400, 250);
 
-                // Botón Iniciar
                 ctx.fillStyle = "#ff0055";
                 ctx.fillRect(botonInicio.x, botonInicio.y, botonInicio.ancho, botonInicio.alto);
                 ctx.fillStyle = "#fff";
@@ -210,15 +85,13 @@
                 ctx.fillText("INICIAR", 400, 412);
             } 
             else if (estadoActual === 'JUEGO') {
-                // Interfaz de Vidas (HUD)
                 ctx.font = "bold 22px monospace";
                 ctx.fillStyle = "#00ffcc";
-                ctx.fillText(`TU SALUD: ${"❤️".repeat(vidaJugador)}`, 200, 60);
+                ctx.fillText(`TU SALUD: ${vidaJugador}`, 200, 60);
                 
                 ctx.fillStyle = "#ff3333";
-                ctx.fillText(`RIVAL HP: ${"❤️".repeat(vidaRival)}`, 600, 60); 
+                ctx.fillText(`RIVAL HP: ${vidaRival}`, 600, 60); 
 
-                // Pantalla de elecciones
                 ctx.fillStyle = "#888";
                 ctx.font = "18px monospace";
                 ctx.fillText("Tu acción:", 250, 160);
@@ -226,46 +99,50 @@
 
                 ctx.fillStyle = "#fff";
                 ctx.font = "bold 28px monospace";
-                ctx.fillText(eleccionJugador || "esperando...", 250, 210);
-                ctx.fillText(eleccionRival || "esperando...", 550, 210);
+                ctx.fillText(eleccionJugador || "---", 250, 210);
+                ctx.fillText(eleccionRival || "---", 550, 210);
 
-                // Consola de Combate central
-                ctx.fillStyle = "#ffaa00";
-                ctx.font = "bold 24px monospace";
-                ctx.fillText(registroResultado, 400, 340);
+                ctx.fillStyle = "#ff0055";
+                ctx.font = "bold 20px monospace";
+                ctx.fillText(registroResultado, 400, 320);
 
-                // Botones de Ataque
+                ctx.font = "14px monospace";
+                ctx.fillStyle = "#666";
+                ctx.fillText(`Ronda: ${ronda} | Ganadas: ${rondasGanadas}`, 400, 360);
+
                 for (let opcion of opciones) {
                     const btn = botonesOpciones[opcion];
+                    ctx.fillStyle = "#22222b";
                     ctx.strokeStyle = "#ff0055";
                     ctx.lineWidth = 2;
+                    ctx.fillRect(btn.x, btn.y, btn.ancho, btn.alto);
                     ctx.strokeRect(btn.x, btn.y, btn.ancho, btn.alto);
-                    
+
                     ctx.fillStyle = "#fff";
-                    ctx.font = "bold 18px monospace";
-                    ctx.fillText(opcion, btn.x + btn.ancho / 2, btn.y + 36);
+                    ctx.font = "bold 16px monospace";
+                    ctx.fillText(opcion, btn.x + btn.ancho / 2, btn.y + btn.alto / 2 + 6);
                 }
-            } 
+            }
             else if (estadoActual === 'VICTORIA' || estadoActual === 'DERROTA') {
                 ctx.fillStyle = estadoActual === 'VICTORIA' ? "#00ffcc" : "#ff3333";
-                ctx.font = "bold 50px monospace";
-                ctx.fillText(estadoActual === 'VICTORIA' ? "SISTEMA DESTRUIDO" : "CONEXIÓN PERDIDA", 400, 230);
+                ctx.font = "bold 45px monospace";
+                ctx.fillText(estadoActual === 'VICTORIA' ? "¡VICTORIA!" : "¡DERROTA!", 400, 200);
 
                 ctx.fillStyle = "#fff";
-                ctx.font = "20px monospace";
-                ctx.fillText(`Rondas ganadas: ${rondasGanadas}`, 400, 300);
+                ctx.font = "18px monospace";
+                ctx.fillText(`Sobreviviste ${ronda} rondas y ganaste ${rondasGanadas}.`, 400, 260);
 
-                // Botón Salir al Menú
-                ctx.fillStyle = "#ffffff";
+                ctx.fillStyle = "#ff0055";
                 ctx.fillRect(botonReiniciar.x, botonReiniciar.y, botonReiniciar.ancho, botonReiniciar.alto);
-                ctx.fillStyle = "#0d0d11";
-                ctx.font = "bold 18px monospace";
-                ctx.fillText("VOLVER AL MENÚ", 400, 452);
+                ctx.fillStyle = "#fff";
+                ctx.font = "bold 20px monospace";
+                ctx.fillText("MENÚ", 400, 452);
             }
 
             requestAnimationFrame(dibujar);
         }
 
+        // Arrancar el bucle gráfico por primera vez
         dibujar();
     </script>
 </body>
