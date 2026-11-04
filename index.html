@@ -37,6 +37,7 @@
         let vidaJugador = 150;
         let vidaRival = 500;
         let rondasGanadas = 0;
+        let ronda = 0;
 
         let eleccionJugador = '';
         let eleccionRival = '';
@@ -72,6 +73,8 @@
                 }
             } 
             else if (estadoActual === 'JUEGO') {
+                const indiceRival = Math.floor(Math.random() * 4);
+                
                 for (let opcion of opciones) {
                     if (verificarClicRec(clicX, clicY, botonesOpciones[opcion])) {
                         ejecutarTurnoPvE(opcion);
@@ -86,12 +89,27 @@
             }
         });
 
+        function Maxvalue(array) {
+            const counts = {};
+            let maxCount = 0;
+            let mostFrequent = null;
+
+            for (const item of array) {
+                counts[item] = (counts[item] || 0) + 1;
+                if (counts[item] > maxCount) {
+                    maxCount = counts[item];
+                    mostFrequent = item;
+                }
+            }
+
+            return mostFrequent;
+        }
         const HistorialJugador = [];
-        HistorialJugador.push(eleccionJugador);
-        const indiceRival = Math.floor(Math.random() * 4);
+
 
         function ejecutarTurnoPvE(eleccionUsuario) {
             eleccionJugador = eleccionUsuario;
+            HistorialJugador.push(eleccionJugador);
 
             function indiceBrorracho() {
                 const indice = Math.floor(Math.random() * opciones.length);
@@ -114,9 +132,9 @@
             }
 
             function indiceCasador() {
-                const azar = Math.random() * 100;
-                if (azar < 50) return 'Papel';
-                else if (azar < 75) return 'Tijera';
+                const tendenciaJugador = Maxvalue(HistorialJugador);
+                if (tendenciaJugador === 'Piedra') return 'Papel';
+                else if (tendenciaJugador === 'Papel') return 'Tijera';
                 else return 'Piedra';
             }
 
@@ -198,7 +216,7 @@
                 ctx.fillText(`TU SALUD: ${"❤️".repeat(vidaJugador)}`, 200, 60);
                 
                 ctx.fillStyle = "#ff3333";
-                ctx.fillText(`RIVAL HP: ${"❤️".repeat(vidaRival)}`, 600, 60);
+                ctx.fillText(`RIVAL HP: ${"❤️".repeat(vidaRival)}`, 600, 60); 
 
                 // Pantalla de elecciones
                 ctx.fillStyle = "#888";
