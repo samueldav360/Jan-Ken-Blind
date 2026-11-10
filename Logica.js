@@ -73,8 +73,9 @@ function DeterminarRol() {
 
 function JugadorAtacante() {
     if (eleccionJugador === eleccionRival) {
-        vidaRival -= 50; // Ajustado el daño proporcional a sus 400 HP
+        vidaRival -= 50;
         rondasGanadas++;
+        Activar(); // Llama a la ruleta
         registroResultado = "¡Golpeaste al rival! (-50 HP)";
     } else {
         DeterminarRol();
@@ -83,7 +84,7 @@ function JugadorAtacante() {
 
 function JugadorDefensor() {
     if (eleccionJugador === eleccionRival) {
-        vidaJugador -= 25; // Ajustado el daño proporcional a tus 150 HP
+        jugador.hp -= 25;
         registroResultado = "¡El rival te golpeó! (-25 HP)";
     } else {
         DeterminarRol();
@@ -93,8 +94,10 @@ function JugadorDefensor() {
 function verificarFinDelJuego() {
     if (vidaRival <= 0) {
         estadoActual = 'VICTORIA';
-    } else if (vidaJugador <= 0) {
+        if (typeof dibujar === 'function') dibujar(); 
+    } else if (jugador.hp <= 0) {
         estadoActual = 'DERROTA';
+        if (typeof dibujar === 'function') dibujar(); 
     }
 }
 
@@ -103,6 +106,7 @@ function ejecutarTurnoPvE(eleccionUsuario) {
     HistorialJugador.push(eleccionJugador);
     eleccionRival = obtenerEleccionRival();
     indiceUltimo = opciones.indexOf(eleccionRival);
+    ronda++; 
 
     if (rol === 'Atacante') {
         JugadorAtacante();
@@ -118,11 +122,22 @@ function ejecutarTurnoPvE(eleccionUsuario) {
 }
 
 function iniciarNuevaPartida() {
-    vidaJugador = 150;
+    jugador.hp = 100;
+    jugador.defensa = 0;
+    jugador.dañoBase = 15;
+    jugador.rol = '';
+    jugador.asedioAbsoluto = false;
+    jugador.nieblaEspionaje = false;
+    jugador.bloqueoZona = false;
+    jugador.controlIniciativa = false;
+    jugador.dañoColateral = false;
+    jugador.sacrificioTactico = false;
+    jugador.emboscadaPosicional = false;
+    jugador.reutilizacionInmed = false;
+    
     vidaRival = 400;
     rondasGanadas = 0;
     ronda = 0;
-    rol = '';
     eleccionJugador = '';
     eleccionRival = '';
     HistorialJugador.length = 0;
