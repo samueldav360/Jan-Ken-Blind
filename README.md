@@ -7,3 +7,4 @@ Cómo jugar localmente
 1.Clona este repositorio: git clone https://github.com/samueldav360/Jan-Ken-Blind
 2.Abre la carpeta del proyecto.
 3.Haz doble clic en el archivo index.html para abrirlo en tu navegador web favorito.
+y no se con que mas llenar el readme asi qeu les voy a contar que el nombre esta inspirado en el nombre del juego en japones y en las apuestas o el casino.
