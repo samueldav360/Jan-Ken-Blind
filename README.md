@@ -4,6 +4,6 @@ Defensor: Recibes daño y debes intentar recuperar la iniciativa en la siguiente
 El objetivo es reducir los puntos de vida (HP) del rival a 0 antes de que tu salud se agote.
 
 Cómo jugar localmente
-1.Clona este repositorio: git clone https://github.com/tu-usuario/jan-ken-blind.git
+1.Clona este repositorio: git clone https://github.com/samueldav360/Jan-Ken-Blind
 2.Abre la carpeta del proyecto.
 3.Haz doble clic en el archivo index.html para abrirlo en tu navegador web favorito.
